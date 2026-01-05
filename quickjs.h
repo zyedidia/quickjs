@@ -992,6 +992,10 @@ JSValue JS_EvalFunction(JSContext *ctx, JSValue fun_obj);
    returns a module. */
 int JS_ResolveModule(JSContext *ctx, JSValueConst obj);
 
+/* LunaJS bytecode introspection API */
+void JS_DumpFunctionBytecode(JSContext *ctx, JSValueConst func_obj);
+int JS_GetBytecodeVersion(void);
+
 /* only exported for os.Worker() */
 JSAtom JS_GetScriptOrModuleName(JSContext *ctx, int n_stack_levels);
 /* only exported for os.Worker() */

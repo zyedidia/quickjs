@@ -36904,6 +36904,12 @@ typedef enum BCTagEnum {
 
 #define BC_VERSION 5
 
+/* Public API for LunaJS bytecode introspection */
+int JS_GetBytecodeVersion(void)
+{
+    return BC_VERSION;
+}
+
 typedef struct BCWriterState {
     JSContext *ctx;
     DynBuf dbuf;
@@ -59537,4 +59543,31 @@ int JS_AddIntrinsicWeakRef(JSContext *ctx)
         return -1;
     JS_FreeValue(ctx, obj);
     return 0;
+}
+
+/* Public API for LunaJS bytecode dumping */
+void JS_DumpFunctionBytecode(JSContext *ctx, JSValueConst func_obj)
+{
+#ifdef DUMP_BYTECODE
+    JSFunctionBytecode *b;
+    int tag = JS_VALUE_GET_TAG(func_obj);
+
+    if (tag == JS_TAG_FUNCTION_BYTECODE) {
+        /* Raw bytecode from JS_ReadObject */
+        b = JS_VALUE_GET_PTR(func_obj);
+    } else if (tag == JS_TAG_OBJECT) {
+        /* Function object wrapper */
+        JSObject *p = JS_VALUE_GET_OBJ(func_obj);
+        if (!js_class_has_bytecode(p->class_id))
+            return;
+        b = p->u.func.function_bytecode;
+    } else {
+        return;
+    }
+    js_dump_function_bytecode(ctx, b);
+#else
+    (void)ctx;
+    (void)func_obj;
+    printf("Bytecode dumping not enabled (compile with DUMP_BYTECODE)\n");
+#endif
 }
